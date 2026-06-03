@@ -1,0 +1,25 @@
+.page {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100vh;
+  background: #0d1117;
+  overflow: hidden;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 12px;
+  padding: 16px 16px 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* CallPanel on top, ActionsLog pinned below it */
+.left {
+  display: grid;
+  grid-template-rows: 1fr 210px;
+  gap: 12px;
+  overflow: hidden;
+  min-height: 0;
+}

@@ -1,0 +1,109 @@
+/* ── Footer bar ── */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #010409;
+  border-top: 1px solid #21262d;
+  flex-shrink: 0;
+}
+
+/* ── Preset pills ── */
+.presets {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.preset {
+  background: transparent;
+  border: 1px solid #30363d;
+  border-radius: 100px;
+  color: #7d8590;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 5px 13px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.preset:hover {
+  border-color: #7d8590;
+  color: #e6edf3;
+}
+
+/* ── Divider ── */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: #21262d;
+  flex-shrink: 0;
+}
+
+/* ── Text input ── */
+.input {
+  flex: 1;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e6edf3;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  padding: 8px 14px;
+  outline: none;
+  min-width: 0;
+  transition: border-color 0.18s;
+}
+
+.input::placeholder {
+  color: #484f58;
+}
+
+.input:focus {
+  border-color: rgba(201, 169, 110, 0.5);
+}
+
+/* ── Curveball button ── */
+.curveball {
+  background: transparent;
+  border: 1px solid rgba(240, 136, 62, 0.3);
+  border-radius: 8px;
+  color: #f0883e;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.curveball:hover {
+  background: rgba(240, 136, 62, 0.08);
+  border-color: rgba(240, 136, 62, 0.55);
+}
+
+/* ── Run button ── */
+.run {
+  background: #c9a96e;
+  border: none;
+  border-radius: 8px;
+  color: #0d1117;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 8px 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.18s;
+}
+
+.run:hover {
+  opacity: 0.82;
+}
