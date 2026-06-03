@@ -1,0 +1,175 @@
+/* ── Shell ── */
+.brain {
+  background: #0d1117;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* ── Intent badge ── */
+.intentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(201, 169, 110, 0.12);
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  color: #c9a96e;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 11px 5px 9px;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.intentBadge svg {
+  flex-shrink: 0;
+}
+
+/* ── Section ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionLabel {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #484f58;
+  margin: 0;
+}
+
+/* ── Memory ── */
+.memoryList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.memoryItem {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #7d8590;
+  padding-left: 10px;
+  border-left: 2px solid #21262d;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.memoryHighlight {
+  color: #c9a96e;
+  border-left-color: rgba(201, 169, 110, 0.4);
+}
+
+.memoryFlagged {
+  color: #f0883e;
+  border-left-color: rgba(240, 136, 62, 0.4);
+}
+
+/* ── Reasoning steps ── */
+.stepList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  animation: stepIn 0.25s ease forwards;
+}
+
+@keyframes stepIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stepText {
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.stepText_pending {
+  color: #7d8590;
+}
+
+.stepText_done {
+  color: #e6edf3;
+}
+
+.stepText_flagged {
+  color: #c9a96e;
+}
+
+/* ── Spinner (pending) ── */
+.spinner {
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Verdict ── */
+.verdict {
+  border-top: 1px solid #21262d;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  animation: fadeUp 0.45s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verdictText {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e6edf3;
+  margin: 0;
+}
+
+.verdictScore {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 11px;
+  margin: 0;
+}
+
+.scoreValue {
+  color: #c9a96e;
+}
+
+.scoreMax {
+  color: #484f58;
+}
