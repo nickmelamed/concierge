@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import CallPanel from "../components/CallPanel";
 import AgentBrain from "../components/AgentBrain";
 import ActionsLog from "../components/ActionsLog";
@@ -6,112 +6,153 @@ import Footer from "../components/Footer";
 import { ScenarioRunner, loadScenario } from "../lib/scenarioRunner";
 import styles from "./index.module.css";
 
+const DEFAULT_SCENARIO = "lead_qualification";
+
 const PRESETS = [
   { label: "Reschedule", value: "reschedule" },
-  { label: "Complaint", value: "complaint" },
+  { label: "Complaint",  value: "complaint"  },
 ];
 
 export default function Home() {
-  const [allTurns, setAllTurns]   = useState([]);
-  const [memory, setMemory]       = useState([]);
-  const [steps, setSteps]         = useState([]);
-  const [actions, setActions]     = useState([]);
-  const [verdict, setVerdict]     = useState(null);
-  const [intent, setIntent]       = useState(null);
+  const [allTurns, setAllTurns] = useState([]);
+  const [memory,   setMemory]   = useState([]);
+  const [steps,    setSteps]    = useState([]);
+  const [actions,  setActions]  = useState([]);
+  const [verdict,  setVerdict]  = useState(null);
+  const [intent,   setIntent]   = useState(null);
 
-  const runnerRef     = useRef(null);
-  const generationRef = useRef(0);   // incremented on each new run to abort stale callbacks
+  const runnerRef            = useRef(null);
+  const generationRef        = useRef(0);
+  const currentScenarioIdRef = useRef(DEFAULT_SCENARIO);
 
-  // Derived — the last turn in the list is always the one currently animating in
+  // Derived state — the last turn in the list is always the one animating in
   const activeTurnIndex = Math.max(0, allTurns.length - 1);
   const isTyping        = allTurns[allTurns.length - 1]?.speaker === "agent";
 
-  // ── Playback chain ──────────────────────────────────────────────────────────
-  // Each call schedules one turn then calls itself for the next, aborting if the
-  // generation counter has moved on (i.e. a new Run was triggered).
-  function scheduleNextTurn(gen, r, idx) {
+  // ── Core playback ──────────────────────────────────────────────────────────
+
+  // Drive the turn chain. Each call waits turn.delay_ms, appends the turn,
+  // syncs memory + steps, then immediately schedules the next call.
+  function playTurns(r, gen, idx) {
     const turn = r.getNextTurn(idx);
     if (!turn) return;
 
     setTimeout(() => {
       if (generationRef.current !== gen) return;
 
-      setAllTurns((prev) => [...prev, turn]);
+      setAllTurns(prev => [...prev, turn]);
 
-      const visibleSteps = r.getStepsAtTurn(idx);
+      // Memory: update whenever new entries become visible
       setMemory(r.getMemoryAtTurn(idx));
+
+      // Steps: pass the full resolved slice to AgentBrain; it handles its own
+      // cascade timing via each step's delay_ms internally
+      const visibleSteps = r.getStepsAtTurn(idx);
       setSteps(visibleSteps);
-      setActions(r.getActionsAtTurn(idx));
 
-      // Verdict unlocks once all visible steps have resolved
-      const doneIds = visibleSteps.filter((s) => s.status !== "pending").map((s) => s.id);
-      setVerdict(r.getVerdict(doneIds));
+      // Verdict unlocks once every visible step has resolved (no more "pending")
+      const resolvedIds = visibleSteps.filter(s => s.status !== "pending").map(s => s.id);
+      setVerdict(r.getVerdict(resolvedIds));
 
-      // Intent tracks the pending step (what the agent is actively checking),
-      // or the last resolved step when everything settles
-      const pending   = visibleSteps.find((s) => s.status === "pending");
-      const forIntent = pending ?? visibleSteps[visibleSteps.length - 1];
-      if (forIntent) setIntent(forIntent.text.replace(/\.\.\.$/, "").trim());
+      // Actions for this turn: staggered by cumulative delay_ms within the group
+      scheduleActionsForTurn(r, gen, idx);
 
-      scheduleNextTurn(gen, r, idx + 1);
+      playTurns(r, gen, idx + 1);
     }, turn.delay_ms);
   }
 
-  // ── Run ─────────────────────────────────────────────────────────────────────
-  async function handleRun(value) {
-    // Normalise input to a scenario ID; fall back to lead_qualification
-    const id = value.trim().toLowerCase().replace(/\s+/g, "_") || "lead_qualification";
+  // Schedule the actions belonging to a specific turn, chaining their delays
+  // so they appear in sequence rather than all at once.
+  function scheduleActionsForTurn(r, gen, turnIdx) {
+    const group = r.getActions().filter(a => a.appears_after_turn === turnIdx);
+    let cumDelay = 0;
+    for (const action of group) {
+      cumDelay += action.delay_ms;
+      const delay = cumDelay;
+      setTimeout(() => {
+        if (generationRef.current !== gen) return;
+        setActions(prev => [...prev, action]);
+      }, delay);
+    }
+  }
 
-    generationRef.current += 1;
-    const gen = generationRef.current;
+  // Reset all panels and begin a fresh playback run
+  function startScenario(scenarioData, gen) {
+    const r = new ScenarioRunner(scenarioData);
+    runnerRef.current = r;
 
     setAllTurns([]);
     setMemory([]);
     setSteps([]);
     setActions([]);
     setVerdict(null);
-    setIntent(null);
+    setIntent(scenarioData.meta?.title ?? null);
+
+    playTurns(r, gen, 0);
+  }
+
+  function loadAndStart(id) {
+    currentScenarioIdRef.current = id;
+    generationRef.current += 1;
+    const gen = generationRef.current;
 
     let data;
     try {
-      data = await loadScenario(id);
+      data = loadScenario(id);
     } catch {
-      data = await loadScenario("lead_qualification");
+      data = loadScenario(DEFAULT_SCENARIO);
     }
 
-    const r = new ScenarioRunner(data);
-    runnerRef.current = r;
-    scheduleNextTurn(gen, r, 0);
+    startScenario(data, gen);
   }
 
-  // ── Curveball ───────────────────────────────────────────────────────────────
+  // ── Mount: auto-play the default scenario ──────────────────────────────────
+  useEffect(() => {
+    loadAndStart(DEFAULT_SCENARIO);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── User controls ──────────────────────────────────────────────────────────
+
+  function handleReplay() {
+    loadAndStart(currentScenarioIdRef.current);
+  }
+
+  function handleRun(value) {
+    const id = value.trim().toLowerCase().replace(/\s+/g, "_") || DEFAULT_SCENARIO;
+    loadAndStart(id);
+  }
+
   function handleCurveball() {
-    const r  = runnerRef.current;
+    const r = runnerRef.current;
     if (!r) return;
     const cb = r.getCurveball();
     if (!cb) return;
 
-    // 1. Inject the caller's curveball line immediately
-    setAllTurns((prev) => [...prev, { speaker: "caller", text: cb.caller_line }]);
+    const gen = generationRef.current;
 
-    // 2. Patch flagged memory items
+    // 1. Inject the caller's surprise line immediately
+    setAllTurns(prev => [...prev, { speaker: "caller", text: cb.caller_line }]);
+
+    // 2. Patch flagged memory items in place
     if (cb.memory_updates?.length) {
-      setMemory((prev) =>
-        prev.map((m) => {
-          const patch = cb.memory_updates.find((u) => u.id === m.id);
+      setMemory(prev =>
+        prev.map(m => {
+          const patch = cb.memory_updates.find(u => u.id === m.id);
           return patch ? { ...m, ...patch } : m;
         })
       );
     }
 
-    // 3. Queue the agent response at 1.4 s
+    // 3. Queue agent response at 1.4 s
     setTimeout(() => {
-      setAllTurns((prev) => [...prev, { speaker: "agent", text: cb.agent_response }]);
+      if (generationRef.current !== gen) return;
+      setAllTurns(prev => [...prev, { speaker: "agent", text: cb.agent_response }]);
 
       // 4. Queue the injected action after its own delay
       if (cb.action_inject) {
         setTimeout(() => {
-          setActions((prev) => [
+          if (generationRef.current !== gen) return;
+          setActions(prev => [
             ...prev,
             {
               id:        `cb_${Date.now()}`,
@@ -125,8 +166,14 @@ export default function Home() {
     }, 1400);
   }
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className={styles.page}>
+      <header className={styles.header}>
+        <span className={styles.logo}>concierge</span>
+        <button className={styles.replay} onClick={handleReplay}>Replay</button>
+      </header>
+
       <div className={styles.main}>
         <div className={styles.left}>
           <CallPanel
@@ -136,6 +183,7 @@ export default function Home() {
           />
           <ActionsLog actions={actions} />
         </div>
+
         <AgentBrain
           intent={intent}
           memory={memory}
@@ -143,6 +191,7 @@ export default function Home() {
           verdict={verdict}
         />
       </div>
+
       <Footer onRun={handleRun} onCurveball={handleCurveball} presets={PRESETS} />
     </div>
   );

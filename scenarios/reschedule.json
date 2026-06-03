@@ -1,0 +1,10 @@
+{
+  "scenario": "reschedule",
+  "meta": { "title": "Reschedule", "description": "Reschedule an existing appointment.", "duration_estimate_ms": 30000 },
+  "turns": [],
+  "memory": [],
+  "reasoning_steps": [],
+  "actions": [],
+  "verdict": null,
+  "curveball": null
+}
