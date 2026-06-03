@@ -1,0 +1,117 @@
+/* ── Panel shell ── */
+.panel {
+  background: #0d1117;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* ── Waveform ── */
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 20px 24px 16px;
+  height: 68px;
+  flex-shrink: 0;
+}
+
+.bar {
+  width: 3px;
+  border-radius: 2px;
+  background: #21262d;
+  transform-origin: center;
+  transition: background 0.4s ease;
+}
+
+.barActive {
+  background: #c9a96e;
+  animation: wave 1.1s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1); }
+}
+
+/* ── Transcript ── */
+.transcript {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  scrollbar-width: none;
+}
+
+.transcript::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Turn ── */
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.labelCaller {
+  color: #484f58;
+}
+
+.labelAgent {
+  color: #c9a96e;
+}
+
+.text {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #e6edf3;
+  margin: 0;
+}
+
+/* ── Word-by-word animation ── */
+.word {
+  display: inline;
+  animation: wordIn 0.18s ease forwards;
+}
+
+@keyframes wordIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Blinking cursor ── */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #c9a96e;
+  border-radius: 1px;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
