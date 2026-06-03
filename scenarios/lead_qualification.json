@@ -1,0 +1,230 @@
+{
+  "scenario": "lead_qualification",
+  "meta": {
+    "title": "Lead Qualification",
+    "description": "Inbound call from a potential customer exploring the platform for their team.",
+    "duration_estimate_ms": 45000
+  },
+  "turns": [
+    {
+      "index": 0,
+      "speaker": "caller",
+      "text": "Hi, I'm calling about potentially bringing your platform to our company. We're a team of about 40 people.",
+      "delay_ms": 800
+    },
+    {
+      "index": 1,
+      "speaker": "agent",
+      "text": "Great to hear that — I'd love to learn more. What's your primary use case, and do you have a budget range in mind?",
+      "delay_ms": 1800
+    },
+    {
+      "index": 2,
+      "speaker": "caller",
+      "text": "We're thinking around $2k a month. Mainly customer support automation.",
+      "delay_ms": 2200
+    },
+    {
+      "index": 3,
+      "speaker": "agent",
+      "text": "That's a great fit for what we do. One quick question — are you the one who'd be making the final call on this, or is there someone else involved in the decision?",
+      "delay_ms": 2000
+    },
+    {
+      "index": 4,
+      "speaker": "caller",
+      "text": "Mostly me, but our CFO would need to sign off on anything over $1k a month.",
+      "delay_ms": 2400
+    },
+    {
+      "index": 5,
+      "speaker": "agent",
+      "text": "Totally makes sense. What does your timeline look like — are you looking to get something in place in the next few weeks, or still in early exploration?",
+      "delay_ms": 2000
+    },
+    {
+      "index": 6,
+      "speaker": "caller",
+      "text": "Probably next quarter. We're still evaluating a couple of options.",
+      "delay_ms": 2200
+    },
+    {
+      "index": 7,
+      "speaker": "agent",
+      "text": "Got it. I've noted everything down and I'll have someone from our team reach out to set up a proper intro call — they'll be able to walk you and your CFO through the details. Does that sound good?",
+      "delay_ms": 2400
+    },
+    {
+      "index": 8,
+      "speaker": "caller",
+      "text": "Yes, that works. Thanks.",
+      "delay_ms": 1800
+    },
+    {
+      "index": 9,
+      "speaker": "agent",
+      "text": "Perfect. You'll hear from us within one business day. Have a great rest of your day.",
+      "delay_ms": 1600
+    }
+  ],
+  "memory": [
+    {
+      "id": "mem_1",
+      "text": "First contact — no prior history",
+      "highlight": false,
+      "flagged": false,
+      "appears_after_turn": 0
+    },
+    {
+      "id": "mem_2",
+      "text": "Team size: 40",
+      "highlight": true,
+      "flagged": false,
+      "appears_after_turn": 0
+    },
+    {
+      "id": "mem_3",
+      "text": "Budget: ~$2k/mo · Use case: support automation",
+      "highlight": true,
+      "flagged": false,
+      "appears_after_turn": 2
+    },
+    {
+      "id": "mem_4",
+      "text": "Decision maker: shared — CFO sign-off required above $1k",
+      "highlight": false,
+      "flagged": true,
+      "appears_after_turn": 4
+    },
+    {
+      "id": "mem_5",
+      "text": "Timeline: next quarter · Still evaluating options",
+      "highlight": false,
+      "flagged": false,
+      "appears_after_turn": 6
+    }
+  ],
+  "reasoning_steps": [
+    {
+      "id": "step_1",
+      "text": "Team size fits SMB tier (10–200)",
+      "status": "done",
+      "delay_ms": 1200,
+      "appears_after_turn": 0
+    },
+    {
+      "id": "step_2",
+      "text": "Budget in range for Pro plan",
+      "status": "done",
+      "delay_ms": 900,
+      "appears_after_turn": 2
+    },
+    {
+      "id": "step_3",
+      "text": "Use case matches platform strengths",
+      "status": "done",
+      "delay_ms": 800,
+      "appears_after_turn": 2
+    },
+    {
+      "id": "step_4",
+      "text": "Checking decision-maker status...",
+      "status": "pending",
+      "resolved_text": "Decision maker unconfirmed — CFO involved",
+      "resolved_status": "flagged",
+      "delay_ms": 1400,
+      "appears_after_turn": 3,
+      "resolves_after_turn": 4
+    },
+    {
+      "id": "step_5",
+      "text": "Assessing purchase timeline...",
+      "status": "pending",
+      "resolved_text": "Timeline: next quarter — nurture cadence appropriate",
+      "resolved_status": "done",
+      "delay_ms": 1000,
+      "appears_after_turn": 5,
+      "resolves_after_turn": 6
+    }
+  ],
+  "verdict": {
+    "text": "Warm lead — route to account executive",
+    "score": 74,
+    "appears_after_step": "step_5"
+  },
+  "actions": [
+    {
+      "id": "action_1",
+      "text": "CRM queried — no existing record",
+      "status": "done",
+      "timestamp": "0:08",
+      "delay_ms": 0,
+      "appears_after_turn": 0
+    },
+    {
+      "id": "action_2",
+      "text": "New lead record created",
+      "status": "done",
+      "timestamp": "0:09",
+      "delay_ms": 600,
+      "appears_after_turn": 0
+    },
+    {
+      "id": "action_3",
+      "text": "Fields updated: team=40, budget=$2k, use_case=support",
+      "status": "done",
+      "timestamp": "0:41",
+      "delay_ms": 0,
+      "appears_after_turn": 2
+    },
+    {
+      "id": "action_4",
+      "text": "CFO involvement flagged — dual approval required",
+      "status": "done",
+      "timestamp": "0:58",
+      "delay_ms": 800,
+      "appears_after_turn": 4
+    },
+    {
+      "id": "action_5",
+      "text": "Lead scored: 74/100 — warm",
+      "status": "done",
+      "timestamp": "1:24",
+      "delay_ms": 0,
+      "appears_after_turn": 6
+    },
+    {
+      "id": "action_6",
+      "text": "AE handoff queued — intro call requested",
+      "status": "done",
+      "timestamp": "1:25",
+      "delay_ms": 700,
+      "appears_after_turn": 7
+    },
+    {
+      "id": "action_7",
+      "text": "Follow-up email drafted and sent to AE",
+      "status": "done",
+      "timestamp": "1:26",
+      "delay_ms": 900,
+      "appears_after_turn": 7
+    }
+  ],
+  "curveball": {
+    "inject_after_turn": 2,
+    "caller_line": "Actually, my colleague handles the budget — I'm not sure the $2k figure is right. Could be more.",
+    "agent_response": "No problem at all — I've noted that as approximate for now. What's the best way to loop your colleague in so we can get the right numbers in front of them?",
+    "memory_updates": [
+      {
+        "id": "mem_3",
+        "text": "Budget: ~$2k/mo (unconfirmed) · Use case: support automation",
+        "flagged": true
+      }
+    ],
+    "action_inject": {
+      "text": "Budget field flagged as unconfirmed — awaiting CFO input",
+      "timestamp": "live",
+      "delay_ms": 1600
+    }
+  }
+}
